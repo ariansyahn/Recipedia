@@ -1,0 +1,63 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+<title>Search App</title>
+
+{% block content %}
+<div class="container">
+	<form method="post" action="/search">
+		<dl>
+			<nav class="navbar navbar-expand-lg navbar-light bg-light"></nav>
+			<div class="container">
+				<div class="row">
+					<div class="col text-center">
+						<h1>Fucking Search Engine</h1>
+						<small class="text-left"> Made by TA-15</small>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<input type="text" class="form-control" name="searchtext" placeholder="Search">
+			</div>
+			<!-- <div class="row"> -->
+			<small class="text-left">Suggestion : </small>
+			<br>
+			<!-- </div> -->
+			<input class="btn btn-success" type="submit" name="Login" value="Search">
+		</dl>
+	</form>
+</div>
+<div class="container">
+	<div>
+		{% if result is defined %}
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Rank</th>
+					<th>Document Title</th>
+					<th>Directory</th>
+					<th>Relevance Score</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				{% for res in result %}
+				<tr>
+					<td></td>
+					<td>{{res["name"]}}</td>
+					<!-- <a href="D:\DATASET\DATASET FINAL"></a> -->
+					<td>{{res["path"]}}</td>
+					<td>{{res["score"]}}</td>
+
+				</tr>
+
+				{% endfor %}
+				</p>
+			</tbody>
+		</table>
+		{% else %}
+		<p><b>No document result!</b></p>
+		{% endif %}
+	</div>
+</div>
+{% endblock %}
