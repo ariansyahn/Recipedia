@@ -201,17 +201,6 @@ def top_ten(results):
     else:
         return results
 
-# iseng iseng
-
-
-def tf2vector(tf):
-    vector = [0]*len(dictionary)
-    for word in tf:
-        if word in dictionary:  # some word might not in word list of documents
-            # vector = tf*idf
-            vector[dictionary[word]] = tf[word]*idf_wi[word]
-    return vector
-
 # ROUTING
 
 
