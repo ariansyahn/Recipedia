@@ -6,8 +6,8 @@
 
 ## Requirements
 
-- Flask (`pip install flask`) is required for all the examples.
-- Flask-WTF (`pip install flask-wtf`) is required for examples 5 and up.
+- Flask (`pip install flask`) is required 
+- Flask-WTF (`pip install flask-wtf`) is required.
 
 ## Running the Examples
 
