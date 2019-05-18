@@ -97,11 +97,11 @@ def set_terms_and_postings():
         dictionary = dictionary.union(unique_terms)
         for term in unique_terms:
             postings[term][doc.id] = terms.count(term)
-            print(postings[term][doc.id])
+            # print(postings[term][doc.id])
 
 
 set_terms_and_postings()
-print(dictionary)
+# print(dictionary)
 
 
 def set_document_frequencies():
