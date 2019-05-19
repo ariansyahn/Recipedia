@@ -2,11 +2,11 @@
 
 > Search Engine about Recipes with Query Expansion using Pseudo Relevance Feedback
 
-![](header.png)
+![](ss.png)
 
 ## Requirements
 
-- Flask (`pip install flask`) is required 
+- Flask (`pip install flask`) is required
 - Flask-WTF (`pip install flask-wtf`) is required.
 
 ## Running the Examples
