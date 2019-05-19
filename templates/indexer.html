@@ -21,10 +21,10 @@
 
             <div class="collapse navbar-collapse" id="navbarColor01">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="/">Home</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item active">
                         <a class="nav-link" href="/indexer">List of Index</a>
                     </li>
                 </ul>
@@ -45,61 +45,36 @@
         </div>
     </div>
 
-
-    <div class="container search-section">
-        <div class="row">
-            <div class="col">
-                <form method="post" action="/search">
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Search : Chicken" aria-label="Search"
-                            aria-describedby="button-addon2" name="search_input">
-                        <div class="input-group-append">
-                            <!-- <button class="btn btn-outline-primary" type="submit" id="search">Search</button> -->
-                            <input class="btn btn-outline-primary" type="submit" id="search" value="Search">
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-
     <div class="container">
         <div class="row">
             <div class="col">
-                {% if result is defined %}
-                <small class="text-secondary"> Result for : <b>{{query}}</b> </small>
-                <small class="text-secondary" style="float:right"> Not Satisfied with Current Query? <a
-                        href="/expand/{{ query }}">Expand</a> </small>
-                <br>
-                <br>
-                <h3 style="text-align: center">Top 10 Retrieved Documents</h3>
+                {% if index is defined %}
+
+                <h3 style="text-align: center">Total Index : {{index|length}}</h3>
                 <!-- {{array}} -->
                 <table class="table table-hover">
                     <thead>
                         <tr class="table table-primary">
-                            <th>Rank</th>
-                            <th>Document ID</th>
+                            <th>Term</th>
+                            <th>Document ID : Frequency</th>
+                            <!-- <th>Frequency</th> -->
+                            <!-- <th>Document ID</th>
                             <th>Document Title</th>
                             <th>Directory</th>
-                            <th>Relevance Score</th>
+                            <th>Relevance Score</th> -->
                         </tr>
                     </thead>
                     <tbody>
 
-                        {% for res in range(0,result|length) %}
+                        {% for key,value in index.items() %}
                         <tr>
-                            <td>{{res+1}}</td>
-                            <td>{{result[res]["id"]}}</td>
-                            <td>{{result[res]["name"]}}</td>
+                            <td>{{key}}</td>
+                            <td>{{value}}</td>
+                            <!-- {% for key,value in value.items() %} -->
+                            <!-- <td>{{key}}</td> -->
+                            <!-- <td>{{value}}</td> -->
+                            <!-- {%endfor%} -->
 
-                            <td>
-                                <a
-                                    href="file:\\\D:\Materi Kuliah\Semester 8\Information Retrieval\Projects\test\{{result[res]['path']}}">
-                                    Download
-                                </a>
-                            </td>
-                            <td><b>{{result[res]["score"]}}</b></td>
 
                         </tr>
 
@@ -107,8 +82,7 @@
                         </p>
                     </tbody>
                 </table>
-                {% else %}
-                <p><b>No document result!</b></p>
+
                 {% endif %}
             </div>
         </div>

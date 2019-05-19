@@ -12,12 +12,16 @@ from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from functools import reduce
+from operator import itemgetter
 from flask import Flask, render_template, request
 from flask_wtf import Form
 from wtforms import StringField, PasswordField
 from wtforms.validators import InputRequired, Email, Length, AnyOf
 
 app = Flask(__name__)
+
+hasilDict = {"test": ""}
+# allContentDict = {"content": ""}
 
 
 class Document():
@@ -61,15 +65,17 @@ def get_content_file(directory):
 all_document = get_content_file('Sample Data')
 N = len(all_document)
 dictionary = set()
+# ini index
 postings = defaultdict(dict)
 document_frequency = defaultdict(int)
 length = defaultdict(float)
+termInDocument = []
 
 
 def preprocessing(document):
 
     # removing number
-    document = re.sub(r'\d +', '', document, flags=re.MULTILINE)
+    document = re.sub('[0-9]+', '', document)
     # case folding
     document = document.lower()
     # remove punctuation
@@ -86,14 +92,19 @@ def preprocessing(document):
     for i in range(0, len(tokens)):
         if (tokens[i] != stemmer.stem(tokens[i])):
             tokens[i] = stemmer.stem(tokens[i])
+    # print(tokens)  # check
+    # allContentDict["content"] = tokens
     return tokens
 
 
 def set_terms_and_postings():
-    global dictionary, postings
+    global dictionary, postings, termInDocument
+    # termInDocument2 = []
     for doc in all_document:
         terms = preprocessing(doc.text)
         unique_terms = set(terms)
+        unique_terms = sorted(unique_terms)
+        termInDocument.append(list(unique_terms))
         dictionary = dictionary.union(unique_terms)
         for term in unique_terms:
             postings[term][doc.id] = terms.count(term)
@@ -101,7 +112,12 @@ def set_terms_and_postings():
 
 
 set_terms_and_postings()
-# print(dictionary)
+# print(termInDocument[2])
+# print(type(dictionary))
+# print(len(dictionary))
+output_dict = {item: val for val, item in enumerate(dictionary)}
+output_dict = sorted(output_dict)
+print("Index Created with Total : ", len(output_dict))
 
 
 def set_document_frequencies():
@@ -111,6 +127,7 @@ def set_document_frequencies():
 
 
 set_document_frequencies()
+# print(document_frequency)
 
 
 def set_inverse_document_frequency(term):
@@ -156,15 +173,15 @@ def similarity(query, id):
 def find_doc_by_id(id):
     for d in all_document:
         if(d.id == id):
-            return (d.name, d.path)
+            return (d.name, d.path, d.id)
 
 
 class ResultDocument():
-    def __init__(self, score, name, path):
+    def __init__(self, score, name, path, id):
         self.score = score
-
         self.name = name
         self.path = path
+        self.id = id
 
 
 def search(query):
@@ -173,7 +190,7 @@ def search(query):
     id_set = []
     relevant_document_ids = intersection(
         [set(postings[term].keys()) for term in query])
-    print(relevant_document_ids)
+    # print(relevant_document_ids)
     for term in query:
         for id_d in postings[term].keys():
             id_set.append(id_d)
@@ -190,9 +207,12 @@ def search(query):
         for (id, score) in scores:
             detail = find_doc_by_id(id)
             # dari return find_doc, dalam bentuk array
-            re_doc = ResultDocument(score, detail[0], detail[1])
+            re_doc = ResultDocument(score, detail[0], detail[1], detail[2])
             all_result_document.append(re_doc)
     return top_ten(all_result_document)
+
+
+# print(search("pork"))
 
 
 def top_ten(results):
@@ -201,12 +221,51 @@ def top_ten(results):
     else:
         return results
 
+
+def vector(text, terms):
+    Vec = []
+    for i in range(len(terms)):
+        if(terms[i] in text):
+            Vec.append(1)
+        else:
+            Vec.append(0)
+    return Vec
+
+
+def relevance(listDoc, allContent):
+    relevance = []
+    for i in range(len(listDoc)):
+        if(i < 5):
+            relevance.append(allContent[int(listDoc[i])])
+
+    # relevances = preprocessing(relevance)
+    return relevance
+
+
+def sumVector(VectorList):
+    results = []
+    results.append(VectorList[0])
+
+    for i in range(1, len(VectorList)):
+        for j in range(len(VectorList[i])):
+            results[0][j] = results[0][j] + VectorList[i][j]
+
+    return results[0]
+
+
+def multiplyVector(alpha, listVector):
+    res = []
+    for i in range(len(listVector)):
+        res.append(alpha*int(listVector[i]))
+    return res
+
+
 # ROUTING
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index2.html')
+    return render_template('index.html')
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -214,28 +273,108 @@ def searching():
     if request.method == 'POST':
         cari = request.form['search_input']
         hasil = []
+        array = []
         try:
             for d in search(cari):
                 re = {"score": d.score,
                       "path": d.path,
-                      "name": d.name
+                      "name": d.name,
+                      "id": d.id
                       }
+                # print(d.id)
                 hasil.append(re)
+                # hasilDict["test"]
+                array.append(d.id)
             if hasil:
-                return render_template('index2.html', result=hasil, query=cari)
+                hasilDict["test"] = array
+                # print("ahahahaha" + hasilDict["test"])
+                # hasilDict["test"] = hasil[id]
+                return render_template('index.html', result=hasil, query=cari, array=hasilDict["test"])
             else:
-                render_template('index2.html')
+                render_template('index.html')
         except Exception:
             pass
-    return render_template('index2.html')
+
+    return render_template('index.html')
 
 
-gg = find_doc_by_id(1)
+# gg = find_doc_by_id(1)
 
 
-@app.route('/test')
-def test():
-    return render_template('test.html', test=dictionary, gg=gg)
+@app.route('/indexer')
+def indexPage():
+    return render_template('indexer.html', index=postings)
+
+
+# print(postings)
+
+# print(hasilDict["test"])
+
+
+@app.route('/expand/<string:query>')
+def expand(query):
+    queryVec = vector(query, list(output_dict))
+    relVec = []
+    total = []
+    totalDict = {}
+    # print(queryVec)
+    res = relevance(hasilDict["test"], termInDocument)
+    # print(res)
+    for words in res:
+        relVec.append(vector(words, list(output_dict)))
+    # print(relVec)
+    relVecSum = sumVector(relVec)
+    # alpha=1
+    mulQuery = multiplyVector(1, queryVec)
+    # beta=0.8
+    mulRelevan = multiplyVector(0.8, relVecSum)
+
+    # jumlah
+    for i in range(len(mulQuery)):
+        total.append(mulQuery[i] + mulRelevan[i])
+
+    # buat dict
+    for i in range(len(mulQuery)):
+        if(total[i] > 0):
+            totalDict[output_dict[i]] = total[i]
+
+    new = OrderedDict(
+        sorted(totalDict.items(), key=itemgetter(1), reverse=True))
+    # print(new)
+    new_query = {}
+    for i in range(6):
+        new_query[str(list(new.keys())[i])] = list(new.values())[i]
+    print(new_query)
+    str_query = []
+    for i in range(len(new_query)):
+        str_query.append(list(new_query.keys())[i])
+    str_query = " ".join(str_query)
+    print(str_query)
+
+    # search again
+    hasil = []
+    array = []
+    try:
+        for d in search(str_query):
+            re = {"score": d.score,
+                  "path": d.path,
+                  "name": d.name,
+                  "id": d.id
+                  }
+            # print(d.id)
+            hasil.append(re)
+            # hasilDict["test"]
+            array.append(d.id)
+        if hasil:
+            hasilDict["test"] = array
+            # print("ahahahaha" + hasilDict["test"])
+            # hasilDict["test"] = hasil[id]
+            return render_template('index.html', result=hasil, query=str_query, array=hasilDict["test"])
+        else:
+            render_template('index.html')
+    except Exception:
+        pass
+    return render_template('index.html')
 
 
 if __name__ == "__main__":
