@@ -62,7 +62,7 @@ def get_content_file(directory):
     return document_contents
 
 
-all_document = get_content_file('Sample Data')
+all_document = get_content_file('static/data')
 N = len(all_document)
 dictionary = set()
 # ini index
@@ -112,12 +112,12 @@ def set_terms_and_postings():
 
 
 set_terms_and_postings()
-# print(termInDocument[2])
+# print(termInDocument)
 # print(type(dictionary))
 # print(len(dictionary))
 output_dict = {item: val for val, item in enumerate(dictionary)}
 output_dict = sorted(output_dict)
-print("Index Created with Total : ", len(output_dict))
+print("Index Created with Total : ", len(postings))
 
 
 def set_document_frequencies():

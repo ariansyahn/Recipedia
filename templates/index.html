@@ -94,8 +94,7 @@
                             <td>{{result[res]["name"]}}</td>
 
                             <td>
-                                <a
-                                    href="file:\\\D:\Materi Kuliah\Semester 8\Information Retrieval\Projects\Final Projects\{{result[res]['path']}}">
+                                <a href="{{url_for('static', filename='data/'+result[res]['name'])}}">
                                     Download
                                 </a>
                             </td>
